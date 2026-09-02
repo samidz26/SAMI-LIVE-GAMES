@@ -1098,14 +1098,14 @@
                     <p id="questionText" style="font-size: 21px; font-weight: bold; color: #ffffff; line-height: 1.5; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);">${currentActiveQuestion.q}</p>
                 </div>
                 <div style="width: 100%; display: flex; justify-content: center; align-items: center; margin-top: auto;">
-                    <div class="timer-badge" id="timerBadge">⏱️ 10</div>
+                    <div class="timer-badge" id="timerBadge">⏱️ 20</div>
                 </div>
             `;
 
             document.getElementById('modalOverlay').style.display = 'flex';
 
             acceptingAnswers = true;
-            startTimer(10);
+            startTimer(20);
         }
 
         function startTimer(seconds) {
