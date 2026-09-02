@@ -1,12 +1,13 @@
 {
-  "name": "sami-live-games",
-  "version": "1.0.0",
-  "description": "SAMI LIVE Interactive Games",
-  "type": "module",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^5.1.0"
-  }
+"name": "sami-live-games",
+"version": "1.0.0",
+"description": "SAMI LIVE Interactive Games",
+"type": "module",
+"scripts": {
+"start": "node server.js"
+},
+"dependencies": {
+"express": "^5.1.0",
+"tiktok-live-connector": "^2.1.0"
+}
 }
