@@ -7,15 +7,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 let connection = null;
-let currentUser = null;
 let clients = [];
+let lastViewer = null;
 
-function sendToClients(data) {
+// إرسال حدث لجميع المتصفحات المتصلة
+function broadcast(data) {
 const message = "data: ${JSON.stringify(data)}\n\n";
 
-clients = clients.filter((res) => {
+clients = clients.filter((client) => {
 try {
-res.write(message);
+client.write(message);
 return true;
 } catch {
 return false;
@@ -27,11 +28,10 @@ return false;
 app.get("/", (req, res) => {
 res.send(`
 
-<!DOCTYPE html><html lang="ar" dir="rtl">
-<head>
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SAMI LIVE GAMES</title><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>SAMI LIVE GAMES</title><style>
+
 * {
   box-sizing: border-box;
 }
@@ -42,9 +42,11 @@ body {
   background: #111;
   color: white;
   font-family: Arial, sans-serif;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   text-align: center;
 }
 
@@ -53,51 +55,90 @@ body {
   max-width: 500px;
 }
 
-h1 {
-  font-size: 32px;
-  margin-bottom: 30px;
+/* الصفحة الأولى */
+
+#connectPage {
+  display: block;
+}
+
+.logo {
+  font-size: 34px;
+  font-weight: bold;
+  margin-bottom: 35px;
 }
 
 input {
   width: 100%;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 17px;
+
   border: none;
+  border-radius: 12px;
+
   font-size: 18px;
   text-align: center;
+
   margin-bottom: 15px;
 }
 
 button {
   width: 100%;
-  padding: 16px;
+
+  padding: 17px;
+
   border: none;
   border-radius: 12px;
+
   background: #ff0050;
   color: white;
+
   font-size: 20px;
+  font-weight: bold;
+
   cursor: pointer;
+}
+
+button:active {
+  transform: scale(.97);
 }
 
 #status {
   margin-top: 20px;
-  font-size: 18px;
+  font-size: 17px;
 }
 
-#page2 {
+/* الصفحة الثانية */
+
+#livePage {
   display: none;
 }
 
-.avatar {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 5px solid white;
+.liveTitle {
+  font-size: 30px;
+  margin-bottom: 35px;
 }
 
-.name {
+.viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  width: 190px;
+  height: 190px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  border: 5px solid white;
+
+  background: #222;
+}
+
+.viewerName {
   margin-top: 20px;
+
   font-size: 28px;
   font-weight: bold;
 }
@@ -106,10 +147,15 @@ button {
   font-size: 22px;
   opacity: .7;
 }
-</style></head><body><div class="container">  <div id="page1">
-    <h1>🎮 SAMI LIVE GAMES</h1><input
+
+</style></head><body><div class="container">  <!-- الصفحة الأولى -->  <div id="connectPage"><div class="logo">
+  🎮 SAMI LIVE GAMES
+</div>
+
+<input
   id="username"
-  placeholder="اكتب اسم مستخدم TikTok"
+  type="text"
+  placeholder="اسم مستخدم TikTok"
   autocomplete="off"
 >
 
@@ -119,66 +165,112 @@ button {
 
 <div id="status"></div>
 
-  </div>  <div id="page2"><h1>🔴 LIVE</h1>
+  </div>  <!-- الصفحة الثانية -->  <div id="livePage"><div class="liveTitle">
+  🔴 TikTok LIVE
+</div>
 
-<div id="viewer">
+<div id="viewer" class="viewer">
+
   <div class="waiting">
     في انتظار دخول شخص...
   </div>
+
 </div>
 
   </div></div><script>
 
 let eventSource = null;
 
+
+// الاتصال باللايف
+
 async function connectTikTok() {
 
-  const username =
-    document.getElementById("username").value.trim();
+  const input =
+    document.getElementById("username");
 
   const status =
     document.getElementById("status");
 
+  let username =
+    input.value.trim();
+
   if (!username) {
+
     status.textContent =
-      "⚠️ اكتب اسم مستخدم TikTok أولاً";
+      "⚠️ اكتب اسم مستخدم TikTok";
+
     return;
   }
+
+  username =
+    username.replace(/^@/, "");
 
   status.textContent =
     "⏳ جاري الاتصال باللايف...";
 
+
   try {
 
-    const response = await fetch("/connect", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ username })
-    });
+    const response =
+      await fetch("/connect", {
 
-    const data = await response.json();
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          username: username
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
 
     if (!data.success) {
+
       status.textContent =
-        "❌ فشل الاتصال: " + data.message;
+        "❌ فشل الاتصال: " +
+        data.message;
+
       return;
     }
 
-    document.getElementById("page1").style.display = "none";
-    document.getElementById("page2").style.display = "block";
+
+    // الانتقال للصفحة الثانية
+
+    document.getElementById(
+      "connectPage"
+    ).style.display = "none";
+
+
+    document.getElementById(
+      "livePage"
+    ).style.display = "block";
+
 
     startEvents();
 
-  } catch (error) {
+  }
+
+  catch (error) {
+
+    console.error(error);
 
     status.textContent =
       "❌ حدث خطأ أثناء الاتصال";
 
-    console.error(error);
   }
+
 }
+
+
+// استقبال الأحداث
 
 function startEvents() {
 
@@ -186,133 +278,253 @@ function startEvents() {
     eventSource.close();
   }
 
-  eventSource = new EventSource("/events");
 
-  eventSource.onmessage = function(event) {
+  eventSource =
+    new EventSource("/events");
 
-    const data = JSON.parse(event.data);
 
-    if (data.type === "viewer") {
+  eventSource.onmessage =
+    function(event) {
 
-      const viewer = data.viewer;
+      try {
 
-      const viewerBox =
-        document.getElementById("viewer");
+        const data =
+          JSON.parse(event.data);
 
-      viewerBox.innerHTML = "";
 
-      const img =
-        document.createElement("img");
+        if (data.type === "viewer") {
 
-      img.className = "avatar";
+          showViewer(data.viewer);
 
-      img.src =
-        viewer.avatar ||
-        "https://via.placeholder.com/180";
+        }
 
-      const name =
-        document.createElement("div");
+      }
 
-      name.className = "name";
+      catch (error) {
 
-      name.textContent =
-        viewer.name || "مشاهد";
+        console.error(
+          "Event error:",
+          error
+        );
 
-      viewerBox.appendChild(img);
-      viewerBox.appendChild(name);
-    }
-  };
+      }
+
+    };
+
 }
 
-</script></body>
-</html>
+
+// عرض المشاهد
+
+function showViewer(viewer) {
+
+  const container =
+    document.getElementById("viewer");
+
+
+  container.innerHTML = "";
+
+
+  const image =
+    document.createElement("img");
+
+  image.className =
+    "avatar";
+
+
+  if (viewer.avatar) {
+
+    image.src =
+      viewer.avatar;
+
+  }
+
+
+  const name =
+    document.createElement("div");
+
+  name.className =
+    "viewerName";
+
+
+  name.textContent =
+    viewer.name || "مشاهد";
+
+
+  container.appendChild(image);
+
+  container.appendChild(name);
+
+}
+
+</script></body></html>
   `);
 });// الاتصال بـ TikTok
+
 app.post("/connect", async (req, res) => {
 
 try {
 
-let username = String(req.body.username || "").trim();
+let username =
+  String(req.body.username || "").trim();
 
-username = username.replace(/^@/, "");
+username =
+  username.replace(/^@/, "");
+
 
 if (!username) {
+
   return res.json({
     success: false,
     message: "اسم المستخدم فارغ"
   });
+
 }
+
+
+// إغلاق الاتصال السابق
 
 if (connection) {
+
   try {
+
     await connection.disconnect();
+
   } catch {}
+
+  connection = null;
+
 }
 
-connection = new TikTokLiveConnection(username);
+
+console.log(
+  "Connecting to TikTok:",
+  username
+);
+
+
+// إنشاء اتصال جديد
+
+connection =
+  new TikTokLiveConnection(
+    username,
+    {
+      processInitialData: false
+    }
+  );
+
+
+// دخول مشاهد جديد
 
 connection.on(
   WebcastEvent.MEMBER,
   (data) => {
 
-    const user =
-      data.user || {};
+    try {
 
-    const viewer = {
-      name:
-        user.nickname ||
-        user.uniqueId ||
-        "مشاهد",
+      const user =
+        data.user || {};
 
-      avatar:
-        user.profilePicture?.url?.[0] ||
-        user.avatarThumb?.urlList?.[0] ||
-        ""
-    };
 
-    currentUser = viewer;
+      const viewer = {
 
-    console.log(
-      "JOIN:",
-      viewer.name
-    );
+        name:
+          user.nickname ||
+          user.uniqueId ||
+          "مشاهد",
 
-    sendToClients({
-      type: "viewer",
-      viewer
-    });
+        avatar:
+          user.profilePicture
+            ?.url?.[0] ||
+
+          user.avatarThumb
+            ?.urlList?.[0] ||
+
+          ""
+
+      };
+
+
+      lastViewer =
+        viewer;
+
+
+      console.log(
+        "VIEWER JOIN:",
+        viewer.name
+      );
+
+
+      broadcast({
+
+        type: "viewer",
+
+        viewer: viewer
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Member event error:",
+        error
+      );
+
+    }
+
   }
 );
 
-await connection.connect();
+
+// محاولة الاتصال
+
+const state =
+  await connection.connect();
+
 
 console.log(
-  "Connected to TikTok LIVE:",
-  username
+  "CONNECTED!",
+  state?.roomId || ""
 );
 
-res.json({
-  success: true
+
+return res.json({
+
+  success: true,
+
+  roomId:
+    state?.roomId || null
+
 });
 
-} catch (error) {
+}
+
+catch (error) {
 
 console.error(
   "TikTok connection error:",
   error
 );
 
-res.json({
+
+return res.json({
+
   success: false,
+
   message:
     error?.message ||
     "تعذر الاتصال باللايف"
+
 });
 
 }
+
 });
 
-// إرسال الأحداث للمتصفح
+// قناة الأحداث للصفحة
+
 app.get("/events", (req, res) => {
 
 res.setHeader(
@@ -334,12 +546,14 @@ res.flushHeaders();
 
 clients.push(res);
 
-if (currentUser) {
+// إذا كان هناك شخص أخير، اعرضه
+
+if (lastViewer) {
 
 res.write(
   `data: ${JSON.stringify({
     type: "viewer",
-    viewer: currentUser
+    viewer: lastViewer
   })}\n\n`
 );
 
@@ -349,16 +563,24 @@ req.on("close", () => {
 
 clients =
   clients.filter(
-    (client) => client !== res
+    client => client !== res
   );
 
 });
+
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+// تشغيل السيرفر
+
+app.listen(
+PORT,
+"0.0.0.0",
+() => {
 
 console.log(
-"SAMI LIVE GAMES running on port ${PORT}"
+  "SAMI LIVE GAMES running on port " +
+  PORT
 );
 
-});
+}
+);
