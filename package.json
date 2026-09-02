@@ -1,13 +1,19 @@
 {
-"name": "sami-live-games",
-"version": "1.0.0",
-"description": "SAMI LIVE Interactive Games",
-"type": "module",
-"scripts": {
-"start": "node server.js"
-},
-"dependencies": {
-"express": "^5.1.0",
-"tiktok-live-connector": "^2.1.0"
-}
+  "name": "tictok-hex-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "tiktok-live-connector": "^2.4.3"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
 }
