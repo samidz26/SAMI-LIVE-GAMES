@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAMI LIVE GAMES</title>  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .game {
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 20px;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 18px 45px;
+      font-size: 22px;
+      border: none;
+      border-radius: 15px;
+      background: #ff0050;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+  </style></head><body>  <div class="game">
+    <h1>🎮 SAMI LIVE GAMES</h1><p id="message">مرحبًا بك في أول تجربة!</p>
+
+<button onclick="startGame()">
+  اضغط هنا
+</button>
+
+  </div>  <script>
+    function startGame() {
+      document.getElementById("message").textContent =
+        "🎉 نجحت اللعبة!";
+    }
+  </script></body>
+</html>
