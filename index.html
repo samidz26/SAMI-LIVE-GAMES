@@ -768,13 +768,17 @@
         </div>
 
         <div class="center-countdown-overlay" id="centerCountdownOverlay">
-            <!-- رقم الخلية بشكل أصغر في الأعلى -->
-            <div id="countdownCellId" style="font-size: 16px; color: #38b6ff; font-weight: bold; margin-bottom: 2px; text-shadow: 0 0 8px rgba(56, 182, 255, 0.4);">الخلية: <span id="countdownCellVal" style="color: #ffd700;"></span></div>
+            <!-- رقم الخلية في الأعلى داخل خلية سداسية مصغرة بدون عبارات -->
+            <div style="position: relative; width: 45px; height: 50px; background: linear-gradient(135deg, #ffd700, #ff69b4); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center; margin-bottom: 6px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);">
+                <div style="width: 41px; height: 46px; background: #151324; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center;">
+                    <span id="countdownCellVal" style="color: #ffd700; font-size: 18px; font-weight: bold;"></span>
+                </div>
+            </div>
             
-            <!-- الحرف المختار داخل خلية سداسية مشابهة لثيم اللعبة -->
-            <div style="position: relative; width: 70px; height: 78px; background: linear-gradient(135deg, #ffd700, #ff69b4); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center; margin-bottom: 8px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);">
-                <div style="width: 64px; height: 72px; background: #151324; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center;">
-                    <span id="countdownCharValue" style="color: #ffd700; font-size: 32px; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);"></span>
+            <!-- الحرف المختار داخل خلية سداسية أكبر -->
+            <div style="position: relative; width: 95px; height: 105px; background: linear-gradient(135deg, #ffd700, #ff69b4); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center; margin-bottom: 12px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);">
+                <div style="width: 89px; height: 99px; background: #151324; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center;">
+                    <span id="countdownCharValue" style="color: #ffd700; font-size: 45px; font-weight: bold; text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);"></span>
                 </div>
             </div>
 
