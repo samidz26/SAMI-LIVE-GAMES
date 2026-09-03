@@ -483,6 +483,7 @@
             background: rgba(11, 15, 25, 0.88);
             border-radius: 24px;
             display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 200;
@@ -769,6 +770,8 @@
         </div>
 
         <div class="center-countdown-overlay" id="centerCountdownOverlay">
+            <!-- إضافة عنصر عرض الحرف أثناء عداد الثلاث ثوانٍ -->
+            <div id="countdownCharDisplay" style="font-size: 24px; color: #ff69b4; font-weight: bold; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);">الحرف: <span id="countdownCharValue" style="color: #ffd700; font-size: 32px;"></span></div>
             <div class="countdown-number" id="centerCountdownNumber">3</div>
         </div>
 
@@ -1002,8 +1005,8 @@
                 }
 
                 if (currentActiveQuestion && currentActiveQuestion.a) {
-    const userText = text.toLowerCase().trim();
-    const isCorrect = currentActiveQuestion.a.some(ans => ans.toLowerCase().trim() === userText);
+                    const userText = text.toLowerCase().trim();
+                    const isCorrect = currentActiveQuestion.a.some(ans => ans.toLowerCase().trim() === userText);
                     
                     if (isCorrect) {
                         acceptingAnswers = false;
@@ -1028,10 +1031,12 @@
 
             currentActiveHex = hexElement;
             awaitingCharSelection = false;
+            
+            // تميز الخلية المختارة فوراً قبل ظهور عداد الثلاث ثوانٍ
             hexElement.classList.add('active-pulse');
             isProcessing = true;
 
-            startCenterCountdown(() => {
+            startCenterCountdown(char, () => {
                 isProcessing = false;
                 openQuestionModal(char);
             });
@@ -1046,9 +1051,13 @@
             });
         });
 
-        function startCenterCountdown(onComplete) {
+        function startCenterCountdown(char, onComplete) {
             const overlay = document.getElementById('centerCountdownOverlay');
             const numElem = document.getElementById('centerCountdownNumber');
+            const charValueElem = document.getElementById('countdownCharValue');
+            
+            // إظهار الحرف بجانب العداد لتجهيز اللاعبين
+            if (charValueElem) charValueElem.innerText = char;
             overlay.style.display = 'flex';
             let currentSec = 3;
 
